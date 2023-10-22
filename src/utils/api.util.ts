@@ -19,3 +19,8 @@ api.interceptors.request.use(
   }),
   async error => await Promise.reject(error),
 );
+
+api.interceptors.response.use(
+  res => res?.data,
+  async error => await Promise.reject(error?.response?.data),
+);

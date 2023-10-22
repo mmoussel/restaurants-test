@@ -15,8 +15,8 @@ import {
 import { Restaurant } from 'src/types/restaurant.types';
 import { RestaurantCard } from './restaurant-card.component';
 
-const keyExtractor = (item: Restaurant, index: number) => {
-  return item?.id || index.toString();
+const keyExtractor = (item: ListDataItem, index: number) => {
+  return item.type === 'item' ? item?.id : index.toString();
 };
 
 const { width } = Dimensions.get('screen');
@@ -27,31 +27,23 @@ const towColItemWidth = (width * 49) / 100 - defaultMargins;
 
 const RESTAURANT_HEIGHT = 100;
 
+export type ListDataItem =
+  | (Restaurant & { type: 'item' })
+  | { type: 'sectionTitle'; title: string };
+
 interface Props {
-  data: Restaurant[];
+  data: ListDataItem[];
   numColumns?: 1 | 2;
-  onEndReached?: () => void;
-  ListFooterComponent?: JSX.Element;
-  ListHeaderComponent?: JSX.Element;
   contentContainerStyle?: StyleProp<ViewStyle>;
-  listRef?: React.LegacyRef<FlatList<Restaurant>>;
-  onScroll?: (e: NativeSyntheticEvent<NativeScrollEvent>) => void;
   ListEmptyComponent?: JSX.Element;
 }
 
 export const RestaurantsList: FC<Props> = ({
   data,
   numColumns = 2,
-  onEndReached = () => null,
-  ListFooterComponent,
-  ListHeaderComponent,
   contentContainerStyle,
-  listRef,
-  onScroll,
   ListEmptyComponent,
 }) => {
-  const isOneCol = numColumns === 1;
-
   const DefaultListEmptyComponent = (
     <View style={styles.emptyList}>
       <Text>No Restaurants found</Text>
@@ -64,27 +56,32 @@ export const RestaurantsList: FC<Props> = ({
     index,
   });
 
-  const Item = memo(({ item }: { item: Restaurant }) => (
-    <View
-      style={[
-        styles.restaurantContainer,
-        { height: RESTAURANT_HEIGHT },
-        numColumns && numColumns > 1
-          ? styles.twoColumnsRestaurantContainer
-          : null,
-      ]}>
-      <RestaurantCard restaurant={item} />
-    </View>
-  ));
+  const Item = memo(({ item }: { item: ListDataItem }) => {
+    return item.type === 'item' ? (
+      <View
+        style={[
+          styles.restaurantContainer,
+          { height: RESTAURANT_HEIGHT },
+          numColumns && numColumns > 1
+            ? styles.twoColumnsRestaurantContainer
+            : null,
+        ]}>
+        <RestaurantCard restaurant={item} />
+      </View>
+    ) : (
+      <View style={{ flex: 2 }}>
+        <Text style={{ fontSize: 24, color: '#000' }}>{item.title}</Text>
+      </View>
+    );
+  });
 
-  const renderItem: ListRenderItem<Restaurant> = useCallback(
+  const renderItem: ListRenderItem<ListDataItem> = useCallback(
     props => <Item {...props} />,
     [numColumns],
   );
 
   return (
     <FlatList
-      ref={listRef}
       data={data}
       renderItem={renderItem}
       getItemLayout={getItemLayout}
@@ -97,12 +94,8 @@ export const RestaurantsList: FC<Props> = ({
       }
       showsVerticalScrollIndicator={false}
       onEndReachedThreshold={0.9}
-      onEndReached={onEndReached}
-      ListFooterComponent={ListFooterComponent}
-      ListHeaderComponent={ListHeaderComponent}
       ListEmptyComponent={ListEmptyComponent || DefaultListEmptyComponent}
       contentContainerStyle={[styles.listContainer, contentContainerStyle]}
-      onScroll={onScroll}
     />
   );
 };
@@ -114,6 +107,7 @@ const styles = StyleSheet.create({
   },
   twoColumnsRestaurantContainer: {
     maxWidth: towColItemWidth,
+    flex: 1,
   },
   columnWrapperStyle: {
     justifyContent: 'space-between',

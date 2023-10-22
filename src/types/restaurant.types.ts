@@ -1,4 +1,4 @@
-export interface Restaurant {
+export type Restaurant = {
   id: string;
   alias: string;
   name: string;
@@ -30,4 +30,4 @@ export interface Restaurant {
   phone: string;
   display_phone: string;
   distance: number;
-}
+};

@@ -14,9 +14,9 @@ export const RestaurantCard: FC<Props> = ({ restaurant }) => {
       <View style={styles.overlay} />
 
       <View>
-        <Text>{restaurant.name}</Text>
-        <Text>{restaurant.rating}</Text>
-        <Text>{restaurant.review_count}</Text>
+        <Text style={{ fontSize: 18 }}>{restaurant.name}</Text>
+        <Text>{restaurant.rating} starts</Text>
+        <Text>{restaurant.review_count} reviews</Text>
       </View>
     </View>
   );
@@ -43,6 +43,6 @@ const styles = StyleSheet.create({
     height: '100%',
     left: 0,
     top: 0,
-    backgroundColor: 'rgba(0,0,0,.15)',
+    backgroundColor: 'rgba(0,0,0,.55)',
   },
 });
