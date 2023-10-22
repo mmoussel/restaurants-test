@@ -26,6 +26,10 @@ export const HomeScreen = () => {
       return [];
     }
 
+    const filteredData = data.businesses.filter(item =>
+      item.name.toLowerCase().includes(search.toLocaleLowerCase()),
+    );
+
     const dataBySection: DataBySection = {
       costEffective: {
         title: 'Cost Effective',
@@ -41,7 +45,7 @@ export const HomeScreen = () => {
       },
     };
 
-    data.businesses.forEach(item => {
+    filteredData.forEach(item => {
       switch (item.price) {
         case '$':
           dataBySection.costEffective.data.push({ ...item, type: 'item' });
@@ -71,7 +75,7 @@ export const HomeScreen = () => {
       .flat();
 
     return formattedData;
-  }, [data]);
+  }, [data, search]);
 
   if (!data) {
     return (
